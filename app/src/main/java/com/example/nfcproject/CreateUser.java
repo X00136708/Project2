@@ -55,9 +55,9 @@ public class CreateUser extends AppCompatDialogFragment {
         db.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    counter = (dataSnapshot.getChildrenCount());
-                }
+//                if(dataSnapshot.exists()){
+//                    counter = (dataSnapshot.getChildrenCount());
+//                }
             }
 
             @Override
@@ -69,7 +69,8 @@ public class CreateUser extends AppCompatDialogFragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 User newUser = new User(Xnumber_form.getText().toString(), FName_form.getText().toString(), LName_form.getText().toString(), Email_form.getText().toString());
-                db.child(String.valueOf(counter+1)).setValue(newUser);
+                //db.child(String.valueOf(counter+1)).setValue(newUser);
+                db.child(Xnumber_form.getText().toString()).setValue(newUser);
                 dialog.cancel();
             }
         });

@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
     Database db;
@@ -57,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     NfcAdapter nfcAdapter;
     DatabaseReference ref;
     ArrayList<User> arrayOfData;
-
+    ArrayList<String> arrayOfXnumbers;
     public MainActivity(){
 
     }
@@ -231,6 +233,17 @@ public class MainActivity extends AppCompatActivity {
 //                    }
 //            );
 //        }
+            public void getID(DataSnapshot snapshot){
+                int size = (int) snapshot.getChildrenCount();
+                arrayOfXnumbers = new ArrayList<String>(size+5);
+                String str = snapshot.getValue().toString();
+                Pattern p = Pattern.compile("[{ ]xnum=([^,}]+)[,}]");
+                    Matcher m = p.matcher(str);
+                    while (m.find()) {
+                        String xnum = m.group(1);
+                        arrayOfXnumbers.add(xnum);
+                    }
+            }
             public void loadFirebase(){
                     loadfirebase.setOnClickListener(
                             new View.OnClickListener() {
@@ -239,16 +252,23 @@ public class MainActivity extends AppCompatActivity {
                                 //Array being initialised to size 100 each time the read is happening
                                 arrayOfData  = new ArrayList<User>(100);
                                 ref = FirebaseDatabase.getInstance().getReference().child("Users");
+
                                 ref.addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        Log.i("All records ", "from firebase: ");
                                         String xnum="", fname="", lname="", email="";
+                                        getID(dataSnapshot);
                                         for(int i=0; i<dataSnapshot.getChildrenCount(); i++) {
-                                            xnum = dataSnapshot.child(String.valueOf(i+1)).child("xnum").getValue().toString();
-                                            fname = dataSnapshot.child(String.valueOf(i+1)).child("fname").getValue().toString();
-                                            lname = dataSnapshot.child(String.valueOf(i+1)).child("lname").getValue().toString();
-                                            email = dataSnapshot.child(String.valueOf(i+1)).child("email").getValue().toString();
+
+//                                            xnum = dataSnapshot.child(String.valueOf(i+1)).child("xnum").getValue().toString();
+//                                            fname = dataSnapshot.child(String.valueOf(i+1)).child("fname").getValue().toString();
+//                                            lname = dataSnapshot.child(String.valueOf(i+1)).child("lname").getValue().toString();
+//                                            email = dataSnapshot.child(String.valueOf(i+1)).child("email").getValue().toString();
+
+                                            xnum = dataSnapshot.child(String.valueOf(arrayOfXnumbers.get(i))).child("xnum").getValue().toString();
+                                            fname = dataSnapshot.child(String.valueOf(arrayOfXnumbers.get(i))).child("fname").getValue().toString();
+                                            lname = dataSnapshot.child(String.valueOf(arrayOfXnumbers.get(i))).child("lname").getValue().toString();
+                                            email = dataSnapshot.child(String.valueOf(arrayOfXnumbers.get(i))).child("email").getValue().toString();
                                             arrayOfData.add(new User(xnum,fname,lname,email));
 
                                         }
@@ -277,15 +297,20 @@ public class MainActivity extends AppCompatActivity {
                                 ref.addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        Log.i("All records ", "from firebase: ");
                                         String xnum="", fname="", lname="", email="";
+                                        getID(dataSnapshot);
                                         for(int i=0; i<dataSnapshot.getChildrenCount(); i++) {
-                                            xnum = dataSnapshot.child(String.valueOf(i+1)).child("xnum").getValue().toString();
-                                            fname = dataSnapshot.child(String.valueOf(i+1)).child("fname").getValue().toString();
-                                            lname = dataSnapshot.child(String.valueOf(i+1)).child("lname").getValue().toString();
-                                            email = dataSnapshot.child(String.valueOf(i+1)).child("email").getValue().toString();
+                                            xnum = dataSnapshot.child(String.valueOf(arrayOfXnumbers.get(i))).child("xnum").getValue().toString();
+                                            fname = dataSnapshot.child(String.valueOf(arrayOfXnumbers.get(i))).child("fname").getValue().toString();
+                                            lname = dataSnapshot.child(String.valueOf(arrayOfXnumbers.get(i))).child("lname").getValue().toString();
+                                            email = dataSnapshot.child(String.valueOf(arrayOfXnumbers.get(i))).child("email").getValue().toString();
                                             if (xnum.equals(value)){
-                                                ref.child(String.valueOf(i+1)).removeValue();
+                                                ref.child(xnum).removeValue();
+                                                arrayOfXnumbers.remove(i);
+                                                for(int a=0; a<arrayOfXnumbers.size(); a++) {
+                                                    Log.i("Array of numbers", "" + arrayOfXnumbers.get(a));
+                                                }
+                                                return;
                                             }
                                             else{
 
